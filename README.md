@@ -92,78 +92,422 @@ module "repo" {
 <!-- markdownlint-disable MD033 -->
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.11 |
-| <a name="requirement_github"></a> [github](#requirement\_github) | ~> 6.0 |
+The following requirements are needed by this module:
+
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (~> 1.11)
+
+- <a name="requirement_github"></a> [github](#requirement\_github) (~> 6.0)
 
 ## Resources
 
-| Name | Type |
-|------|------|
-| [github_actions_repository_oidc_subject_claim_customization_template.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_repository_oidc_subject_claim_customization_template) | resource |
-| [github_branch.target](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/branch) | resource |
-| [github_branch_default.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/branch_default) | resource |
-| [github_repository.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository) | resource |
-| [github_repository_collaborator.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_collaborator) | resource |
-| [github_repository_file.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_file) | resource |
-| [github_team_repository.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/team_repository) | resource |
-| [github_organization.this](https://registry.terraform.io/providers/integrations/github/latest/docs/data-sources/organization) | data source |
-| [github_repository.this](https://registry.terraform.io/providers/integrations/github/latest/docs/data-sources/repository) | data source |
-| [github_user.this](https://registry.terraform.io/providers/integrations/github/latest/docs/data-sources/user) | data source |
+The following resources are used by this module:
+
+- [github_actions_repository_oidc_subject_claim_customization_template.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_repository_oidc_subject_claim_customization_template) (resource)
+- [github_branch.target](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/branch) (resource)
+- [github_branch_default.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/branch_default) (resource)
+- [github_repository.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository) (resource)
+- [github_repository_collaborator.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_collaborator) (resource)
+- [github_repository_file.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_file) (resource)
+- [github_team_repository.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/team_repository) (resource)
+- [github_organization.this](https://registry.terraform.io/providers/integrations/github/latest/docs/data-sources/organization) (data source)
+- [github_repository.this](https://registry.terraform.io/providers/integrations/github/latest/docs/data-sources/repository) (data source)
+- [github_user.this](https://registry.terraform.io/providers/integrations/github/latest/docs/data-sources/user) (data source)
 
 <!-- markdownlint-disable MD013 -->
-## Inputs
+## Required Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_name"></a> [name](#input\_name) | The name of the repository. | `string` | n/a | yes |
-| <a name="input_actions_oidc_subject_claim_values"></a> [actions\_oidc\_subject\_claim\_values](#input\_actions\_oidc\_subject\_claim\_values) | Additional OIDC subject claim key/value pairs for keys that cannot be resolved<br/>by the module at plan time (e.g. job\_workflow\_ref). These are merged with the<br/>module-resolved values and used when constructing federated identity credential<br/>subjects.<br/>Keys that the module resolves automatically (repository, repository\_id,<br/>repository\_owner, repository\_owner\_id, repository\_visibility, environment)<br/>cannot be overridden. | `map(string)` | `{}` | no |
-| <a name="input_actions_oidc_subject_claims"></a> [actions\_oidc\_subject\_claims](#input\_actions\_oidc\_subject\_claims) | Customize the OIDC subject claim template for GitHub Actions in this repository.<br/>Set to null (the default) to not manage this resource.<br/>`use_default` - Whether to use the default template provided by GitHub.<br/>`include_claim_keys` - List of claim keys to include in the subject claim (e.g. repository\_owner\_id, repository\_id, environment). | <pre>object({<br/>    use_default        = bool<br/>    include_claim_keys = list(string)<br/>  })</pre> | <pre>{<br/>  "include_claim_keys": [<br/>    "repository_owner_id",<br/>    "repository_id",<br/>    "environment"<br/>  ],<br/>  "use_default": false<br/>}</pre> | no |
-| <a name="input_archive_on_destroy"></a> [archive\_on\_destroy](#input\_archive\_on\_destroy) | Archive the repository instead of deleting on destroy. | `bool` | `true` | no |
-| <a name="input_auto_init"></a> [auto\_init](#input\_auto\_init) | Whether to produce an initial commit with an empty README in the repository. | `bool` | `true` | no |
-| <a name="input_branch"></a> [branch](#input\_branch) | Branch to commit files to. Defaults to the default branch. | `string` | `null` | no |
-| <a name="input_collaborators"></a> [collaborators](#input\_collaborators) | Map of collaborators to add to the repository.<br/>The map key is an arbitrary identifier to avoid known-after-apply issues.<br/>`username`   - The GitHub username of the collaborator.<br/>`permission` - The permission to grant. Built-in levels are: pull, triage, push, maintain, admin.<br/>               Custom organization repository role names are also supported. Defaults to push. | <pre>map(object({<br/>    username   = string<br/>    permission = optional(string, "push")<br/>  }))</pre> | `{}` | no |
-| <a name="input_commit_author"></a> [commit\_author](#input\_commit\_author) | The commit author name for file commits. | `string` | `"Terraform"` | no |
-| <a name="input_commit_email"></a> [commit\_email](#input\_commit\_email) | The commit author email for file commits. | `string` | `"terraform@localhost"` | no |
-| <a name="input_commit_message_prefix"></a> [commit\_message\_prefix](#input\_commit\_message\_prefix) | Prefix for auto-generated commit messages. | `string` | `"terraform: "` | no |
-| <a name="input_create_repository"></a> [create\_repository](#input\_create\_repository) | Whether to create the GitHub repository. Set to false to manage content in an existing repo. | `bool` | `true` | no |
-| <a name="input_default_branch"></a> [default\_branch](#input\_default\_branch) | The name of the default branch. | `string` | `"main"` | no |
-| <a name="input_description"></a> [description](#input\_description) | A description of the repository. | `string` | `null` | no |
-| <a name="input_environments"></a> [environments](#input\_environments) | Map of environments to create for the repository.<br/>The map key is an arbitrary identifier to avoid known-after-apply issues.<br/>`environment`         - The name of the environment.<br/>`wait_timer`          - Amount of time in minutes to delay a job after the job is initially triggered.<br/>`can_admins_bypass`   - Whether repository admins can bypass the environment protections. Defaults to true.<br/>`prevent_self_review` - Whether users are prevented from approving workflows they triggered. Defaults to false.<br/>`reviewers`           - Reviewers who may approve deployments:<br/>  `teams` - Up to 6 team IDs.<br/>  `users` - Up to 6 user IDs.<br/>`variables`           - Map of environment variables (arbitrary key):<br/>  `name`  - The variable name.<br/>  `value` - The variable value.<br/>`secrets`             - Map of environment secrets (arbitrary key). Values are NOT managed by Terraform:<br/>  `name` - The secret name.<br/>`deployment_policy`   - Deployment branch policy:<br/>  `protected_branches`     - Whether only protected branches can deploy.<br/>  `custom_branch_policies` - Whether only matching branch/tag patterns can deploy.<br/>`branch_policies`     - Branch name patterns for custom deployment policies.<br/>`tag_policies`        - Tag name patterns for custom deployment policies.<br/>`identity`            - Optional Azure identity configuration. When set, creates a user-assigned<br/>                        managed identity and federated identity credential for the environment:<br/>  `name`      - Name of the user-assigned managed identity.<br/>  `parent_id` - Azure resource group resource ID where the identity will be created.<br/>  `location`  - Azure region for the identity.<br/>  `subject`   - Optional override for the federated identity credential subject claim.<br/>                When not set, the subject is auto-constructed from the OIDC claim configuration.<br/>  `audiences` - Optional list of audiences for the federated credential. Defaults to ["api://AzureADTokenExchange"].<br/>`identity_role_assignments`  - Optional map of Azure role assignments for the environment's managed identity:<br/>  `role_definition_id` - The full resource ID of the role definition (e.g. /subscriptions/.../providers/Microsoft.Authorization/roleDefinitions/...).<br/>  `scope`              - The scope at which the role assignment applies (e.g. a resource group or subscription ID).<br/>  `condition`          - Optional condition for the role assignment.<br/>  `condition_version`  - Optional version of the condition syntax (e.g. "2.0"). | <pre>map(object({<br/>    environment         = string<br/>    wait_timer          = optional(number, 0)<br/>    can_admins_bypass   = optional(bool, true)<br/>    prevent_self_review = optional(bool, false)<br/>    reviewers = optional(object({<br/>      teams = optional(set(number), [])<br/>      users = optional(set(number), [])<br/>    }))<br/>    variables = optional(map(object({<br/>      name  = string<br/>      value = string<br/>    })), {})<br/>    secrets = optional(map(object({<br/>      name = string<br/>    })), {})<br/>    deployment_policy = optional(object({<br/>      protected_branches     = optional(bool, false)<br/>      custom_branch_policies = optional(bool, false)<br/>    }))<br/>    branch_policies = optional(list(string), [])<br/>    tag_policies    = optional(list(string), [])<br/>    identity = optional(object({<br/>      name      = string<br/>      parent_id = string<br/>      location  = string<br/>      subject   = optional(string)<br/>      audiences = optional(list(string), ["api://AzureADTokenExchange"])<br/>    }))<br/>    identity_role_assignments = optional(map(object({<br/>      role_definition_id = string<br/>      scope              = string<br/>      condition          = optional(string)<br/>      condition_version  = optional(string)<br/>    })), {})<br/>  }))</pre> | `{}` | no |
-| <a name="input_files"></a> [files](#input\_files) | Map of file paths to file content to commit to the repository. The map key is the file path<br/>within the repo. Mutually exclusive with files\_dir. | `map(string)` | `{}` | no |
-| <a name="input_files_dir"></a> [files\_dir](#input\_files\_dir) | Path to a local directory whose contents will be committed to the repository. All files are<br/>read recursively. Mutually exclusive with files. Callers should use an absolute path,<br/>e.g. "${path.module}/content". | `string` | `null` | no |
-| <a name="input_gitignore_template"></a> [gitignore\_template](#input\_gitignore\_template) | Gitignore template to use when creating the repository (e.g. Terraform, Python, Go). | `string` | `null` | no |
-| <a name="input_has_issues"></a> [has\_issues](#input\_has\_issues) | Enable GitHub Issues on the repository. | `bool` | `true` | no |
-| <a name="input_has_projects"></a> [has\_projects](#input\_has\_projects) | Enable GitHub Projects on the repository. | `bool` | `false` | no |
-| <a name="input_has_wiki"></a> [has\_wiki](#input\_has\_wiki) | Enable the wiki on the repository. | `bool` | `false` | no |
-| <a name="input_license_template"></a> [license\_template](#input\_license\_template) | License template to use when creating the repository (e.g. mit, apache-2.0). | `string` | `null` | no |
-| <a name="input_owner_is_organization"></a> [owner\_is\_organization](#input\_owner\_is\_organization) | Whether the repository owner is a GitHub organization (true) or a personal user account (false).<br/>This controls whether the module uses github\_organization or github\_user data source to resolve<br/>OIDC claim values. | `bool` | `true` | no |
-| <a name="input_teams"></a> [teams](#input\_teams) | Map of teams to grant access to the repository.<br/>The map key is an arbitrary identifier to avoid known-after-apply issues.<br/>`team_id`    - The ID or slug of the team.<br/>`permission` - The permission to grant. Must be one of: pull, triage, push, maintain, admin,<br/>               or the name of an existing custom repository role within the organisation. Defaults to push. | <pre>map(object({<br/>    team_id    = string<br/>    permission = optional(string, "push")<br/>  }))</pre> | `{}` | no |
-| <a name="input_template"></a> [template](#input\_template) | Template repository to use when creating the repo. Object with owner and repository keys. | <pre>object({<br/>    owner      = string<br/>    repository = string<br/>  })</pre> | `null` | no |
-| <a name="input_visibility"></a> [visibility](#input\_visibility) | Repository visibility: public, private, or internal. | `string` | `"private"` | no |
+The following input variables are required:
+
+### <a name="input_name"></a> [name](#input\_name)
+
+Description: The name of the repository.
+
+Type: `string`
+
+## Optional Inputs
+
+The following input variables are optional (have default values):
+
+### <a name="input_actions_oidc_subject_claim_values"></a> [actions\_oidc\_subject\_claim\_values](#input\_actions\_oidc\_subject\_claim\_values)
+
+Description: Additional OIDC subject claim key/value pairs for keys that cannot be resolved  
+by the module at plan time (e.g. job\_workflow\_ref). These are merged with the  
+module-resolved values and used when constructing federated identity credential  
+subjects.  
+Keys that the module resolves automatically (repository, repository\_id,  
+repository\_owner, repository\_owner\_id, repository\_visibility, environment)  
+cannot be overridden.
+
+Type: `map(string)`
+
+Default: `{}`
+
+### <a name="input_actions_oidc_subject_claims"></a> [actions\_oidc\_subject\_claims](#input\_actions\_oidc\_subject\_claims)
+
+Description: Customize the OIDC subject claim template for GitHub Actions in this repository.  
+Set to null (the default) to not manage this resource.
+`use_default` - Whether to use the default template provided by GitHub.
+`include_claim_keys` - List of claim keys to include in the subject claim (e.g. repository\_owner\_id, repository\_id, environment).
+
+Type:
+
+```hcl
+object({
+    use_default        = bool
+    include_claim_keys = list(string)
+  })
+```
+
+Default:
+
+```json
+{
+  "include_claim_keys": [
+    "repository_owner_id",
+    "repository_id",
+    "environment"
+  ],
+  "use_default": false
+}
+```
+
+### <a name="input_archive_on_destroy"></a> [archive\_on\_destroy](#input\_archive\_on\_destroy)
+
+Description: Archive the repository instead of deleting on destroy.
+
+Type: `bool`
+
+Default: `true`
+
+### <a name="input_auto_init"></a> [auto\_init](#input\_auto\_init)
+
+Description: Whether to produce an initial commit with an empty README in the repository.
+
+Type: `bool`
+
+Default: `true`
+
+### <a name="input_branch"></a> [branch](#input\_branch)
+
+Description: Branch to commit files to. Defaults to the default branch.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_collaborators"></a> [collaborators](#input\_collaborators)
+
+Description: Map of collaborators to add to the repository.  
+The map key is an arbitrary identifier to avoid known-after-apply issues.
+`username`   - The GitHub username of the collaborator.
+`permission` - The permission to grant. Built-in levels are: pull, triage, push, maintain, admin.  
+               Custom organization repository role names are also supported. Defaults to push.
+
+Type:
+
+```hcl
+map(object({
+    username   = string
+    permission = optional(string, "push")
+  }))
+```
+
+Default: `{}`
+
+### <a name="input_commit_author"></a> [commit\_author](#input\_commit\_author)
+
+Description: The commit author name for file commits.
+
+Type: `string`
+
+Default: `"Terraform"`
+
+### <a name="input_commit_email"></a> [commit\_email](#input\_commit\_email)
+
+Description: The commit author email for file commits.
+
+Type: `string`
+
+Default: `"terraform@localhost"`
+
+### <a name="input_commit_message_prefix"></a> [commit\_message\_prefix](#input\_commit\_message\_prefix)
+
+Description: Prefix for auto-generated commit messages.
+
+Type: `string`
+
+Default: `"terraform: "`
+
+### <a name="input_create_repository"></a> [create\_repository](#input\_create\_repository)
+
+Description: Whether to create the GitHub repository. Set to false to manage content in an existing repo.
+
+Type: `bool`
+
+Default: `true`
+
+### <a name="input_default_branch"></a> [default\_branch](#input\_default\_branch)
+
+Description: The name of the default branch.
+
+Type: `string`
+
+Default: `"main"`
+
+### <a name="input_description"></a> [description](#input\_description)
+
+Description: A description of the repository.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_environments"></a> [environments](#input\_environments)
+
+Description: Map of environments to create for the repository.  
+The map key is an arbitrary identifier to avoid known-after-apply issues.
+`environment`         - The name of the environment.
+`wait_timer`          - Amount of time in minutes to delay a job after the job is initially triggered.
+`can_admins_bypass`   - Whether repository admins can bypass the environment protections. Defaults to true.
+`prevent_self_review` - Whether users are prevented from approving workflows they triggered. Defaults to false.
+`reviewers`           - Reviewers who may approve deployments:
+  `teams` - Up to 6 team IDs.
+  `users` - Up to 6 user IDs.
+`variables`           - Map of environment variables (arbitrary key):
+  `name`  - The variable name.
+  `value` - The variable value.
+`secrets`             - Map of environment secrets (arbitrary key). Values are NOT managed by Terraform:
+  `name` - The secret name.
+`deployment_policy`   - Deployment branch policy:
+  `protected_branches`     - Whether only protected branches can deploy.
+  `custom_branch_policies` - Whether only matching branch/tag patterns can deploy.
+`branch_policies`     - Branch name patterns for custom deployment policies.
+`tag_policies`        - Tag name patterns for custom deployment policies.
+`identity`            - Optional Azure identity configuration. When set, creates a user-assigned  
+                        managed identity and federated identity credential for the environment:
+  `name`      - Name of the user-assigned managed identity.
+  `parent_id` - Azure resource group resource ID where the identity will be created.
+  `location`  - Azure region for the identity.
+  `subject`   - Optional override for the federated identity credential subject claim.  
+                When not set, the subject is auto-constructed from the OIDC claim configuration.
+  `audiences` - Optional list of audiences for the federated credential. Defaults to ["api://AzureADTokenExchange"].
+`identity_role_assignments`  - Optional map of Azure role assignments for the environment's managed identity:
+  `role_definition_id` - The full resource ID of the role definition (e.g. /subscriptions/.../providers/Microsoft.Authorization/roleDefinitions/...).
+  `scope`              - The scope at which the role assignment applies (e.g. a resource group or subscription ID).
+  `condition`          - Optional condition for the role assignment.
+  `condition_version`  - Optional version of the condition syntax (e.g. "2.0").
+
+Type:
+
+```hcl
+map(object({
+    environment         = string
+    wait_timer          = optional(number, 0)
+    can_admins_bypass   = optional(bool, true)
+    prevent_self_review = optional(bool, false)
+    reviewers = optional(object({
+      teams = optional(set(number), [])
+      users = optional(set(number), [])
+    }))
+    variables = optional(map(object({
+      name  = string
+      value = string
+    })), {})
+    secrets = optional(map(object({
+      name = string
+    })), {})
+    deployment_policy = optional(object({
+      protected_branches     = optional(bool, false)
+      custom_branch_policies = optional(bool, false)
+    }))
+    branch_policies = optional(list(string), [])
+    tag_policies    = optional(list(string), [])
+    identity = optional(object({
+      name      = string
+      parent_id = string
+      location  = string
+      subject   = optional(string)
+      audiences = optional(list(string), ["api://AzureADTokenExchange"])
+    }))
+    identity_role_assignments = optional(map(object({
+      role_definition_id = string
+      scope              = string
+      condition          = optional(string)
+      condition_version  = optional(string)
+    })), {})
+  }))
+```
+
+Default: `{}`
+
+### <a name="input_files"></a> [files](#input\_files)
+
+Description: Map of file paths to file content to commit to the repository. The map key is the file path  
+within the repo. Mutually exclusive with files\_dir.
+
+Type: `map(string)`
+
+Default: `{}`
+
+### <a name="input_files_dir"></a> [files\_dir](#input\_files\_dir)
+
+Description: Path to a local directory whose contents will be committed to the repository. All files are  
+read recursively. Mutually exclusive with files. Callers should use an absolute path,  
+e.g. "${path.module}/content".
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_gitignore_template"></a> [gitignore\_template](#input\_gitignore\_template)
+
+Description: Gitignore template to use when creating the repository (e.g. Terraform, Python, Go).
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_has_issues"></a> [has\_issues](#input\_has\_issues)
+
+Description: Enable GitHub Issues on the repository.
+
+Type: `bool`
+
+Default: `true`
+
+### <a name="input_has_projects"></a> [has\_projects](#input\_has\_projects)
+
+Description: Enable GitHub Projects on the repository.
+
+Type: `bool`
+
+Default: `false`
+
+### <a name="input_has_wiki"></a> [has\_wiki](#input\_has\_wiki)
+
+Description: Enable the wiki on the repository.
+
+Type: `bool`
+
+Default: `false`
+
+### <a name="input_license_template"></a> [license\_template](#input\_license\_template)
+
+Description: License template to use when creating the repository (e.g. mit, apache-2.0).
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_owner_is_organization"></a> [owner\_is\_organization](#input\_owner\_is\_organization)
+
+Description: Whether the repository owner is a GitHub organization (true) or a personal user account (false).  
+This controls whether the module uses github\_organization or github\_user data source to resolve  
+OIDC claim values.
+
+Type: `bool`
+
+Default: `true`
+
+### <a name="input_teams"></a> [teams](#input\_teams)
+
+Description: Map of teams to grant access to the repository.  
+The map key is an arbitrary identifier to avoid known-after-apply issues.
+`team_id`    - The ID or slug of the team.
+`permission` - The permission to grant. Must be one of: pull, triage, push, maintain, admin,  
+               or the name of an existing custom repository role within the organisation. Defaults to push.
+
+Type:
+
+```hcl
+map(object({
+    team_id    = string
+    permission = optional(string, "push")
+  }))
+```
+
+Default: `{}`
+
+### <a name="input_template"></a> [template](#input\_template)
+
+Description: Template repository to use when creating the repo. Object with owner and repository keys.
+
+Type:
+
+```hcl
+object({
+    owner      = string
+    repository = string
+  })
+```
+
+Default: `null`
+
+### <a name="input_visibility"></a> [visibility](#input\_visibility)
+
+Description: Repository visibility: public, private, or internal.
+
+Type: `string`
+
+Default: `"private"`
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_actions_oidc_subject_claim_values"></a> [actions\_oidc\_subject\_claim\_values](#output\_actions\_oidc\_subject\_claim\_values) | Map of configured OIDC subject claim keys to their actual resolved values (map(string)). Only claims resolvable at plan/apply time are included; runtime-only keys (e.g. environment, actor, ref) are omitted. |
-| <a name="output_collaborators"></a> [collaborators](#output\_collaborators) | Map of collaborators added to the repository, keyed by the same keys as the collaborators variable. |
-| <a name="output_default_branch"></a> [default\_branch](#output\_default\_branch) | The default branch of the repository. |
-| <a name="output_environments"></a> [environments](#output\_environments) | Map of environment keys to their submodule outputs, keyed by the same keys as the environments variable. |
-| <a name="output_files"></a> [files](#output\_files) | Map of managed file paths to their commit SHAs. |
-| <a name="output_full_name"></a> [full\_name](#output\_full\_name) | The full name of the repository (owner/name). |
-| <a name="output_html_url"></a> [html\_url](#output\_html\_url) | The URL to the repository on GitHub. |
-| <a name="output_http_clone_url"></a> [http\_clone\_url](#output\_http\_clone\_url) | HTTP clone URL of the repository. |
-| <a name="output_repository"></a> [repository](#output\_repository) | The full repository resource (null when create\_repository is false). |
-| <a name="output_ssh_clone_url"></a> [ssh\_clone\_url](#output\_ssh\_clone\_url) | SSH clone URL of the repository. |
-| <a name="output_teams"></a> [teams](#output\_teams) | Map of teams granted access to the repository, keyed by the same keys as the teams variable. |
+The following outputs are exported:
+
+### <a name="output_actions_oidc_subject_claim_values"></a> [actions\_oidc\_subject\_claim\_values](#output\_actions\_oidc\_subject\_claim\_values)
+
+Description: Map of configured OIDC subject claim keys to their actual resolved values (map(string)). Only claims resolvable at plan/apply time are included; runtime-only keys (e.g. environment, actor, ref) are omitted.
+
+### <a name="output_collaborators"></a> [collaborators](#output\_collaborators)
+
+Description: Map of collaborators added to the repository, keyed by the same keys as the collaborators variable.
+
+### <a name="output_default_branch"></a> [default\_branch](#output\_default\_branch)
+
+Description: The default branch of the repository.
+
+### <a name="output_environments"></a> [environments](#output\_environments)
+
+Description: Map of environment keys to their submodule outputs, keyed by the same keys as the environments variable.
+
+### <a name="output_files"></a> [files](#output\_files)
+
+Description: Map of managed file paths to their commit SHAs.
+
+### <a name="output_full_name"></a> [full\_name](#output\_full\_name)
+
+Description: The full name of the repository (owner/name).
+
+### <a name="output_html_url"></a> [html\_url](#output\_html\_url)
+
+Description: The URL to the repository on GitHub.
+
+### <a name="output_http_clone_url"></a> [http\_clone\_url](#output\_http\_clone\_url)
+
+Description: HTTP clone URL of the repository.
+
+### <a name="output_repository"></a> [repository](#output\_repository)
+
+Description: The full repository resource (null when create\_repository is false).
+
+### <a name="output_ssh_clone_url"></a> [ssh\_clone\_url](#output\_ssh\_clone\_url)
+
+Description: SSH clone URL of the repository.
+
+### <a name="output_teams"></a> [teams](#output\_teams)
+
+Description: Map of teams granted access to the repository, keyed by the same keys as the teams variable.
 
 ## Modules
 
-| Name | Source | Version |
-|------|--------|---------|
-| <a name="module_environment"></a> [environment](#module\_environment) | ./modules/environment | n/a |
+The following Modules are called:
+
+### <a name="module_environment"></a> [environment](#module\_environment)
+
+Source: ./modules/environment
+
+Version:
 
 Copyright (c) matt-FFFFFF
 <!-- END_TF_DOCS -->
