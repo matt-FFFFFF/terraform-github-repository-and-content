@@ -64,9 +64,15 @@ data "github_repository" "this" {
 }
 
 data "github_organization" "this" {
-  count = var.actions_oidc_subject_claims != null ? 1 : 0
+  count = var.owner_is_organization && var.actions_oidc_subject_claims != null ? 1 : 0
 
   name = var.create_repository ? split("/", github_repository.this[0].full_name)[0] : split("/", data.github_repository.this[0].full_name)[0]
+}
+
+data "github_user" "this" {
+  count = !var.owner_is_organization && var.actions_oidc_subject_claims != null ? 1 : 0
+
+  username = var.create_repository ? split("/", github_repository.this[0].full_name)[0] : split("/", data.github_repository.this[0].full_name)[0]
 }
 
 resource "github_actions_repository_oidc_subject_claim_customization_template" "this" {

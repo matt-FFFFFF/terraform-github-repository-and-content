@@ -121,6 +121,13 @@ variable "has_wiki" {
   nullable    = false
 }
 
+variable "owner_is_organization" {
+  description = "Whether the repository owner is a GitHub organization (true) or a personal user account (false). This controls whether the module uses github_organization or github_user data source to resolve OIDC claim values."
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
 variable "actions_oidc_subject_claims" {
   description = <<-DESCRIPTION
     Customize the OIDC subject claim template for GitHub Actions in this repository.
