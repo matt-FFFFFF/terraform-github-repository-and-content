@@ -106,10 +106,13 @@ The following requirements are needed by this module:
 
 The following resources are used by this module:
 
+- [github_actions_repository_oidc_subject_claim_customization_template.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/actions_repository_oidc_subject_claim_customization_template) (resource)
 - [github_branch.target](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/branch) (resource)
 - [github_branch_default.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/branch_default) (resource)
 - [github_repository.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository) (resource)
 - [github_repository_file.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_file) (resource)
+- [github_organization.this](https://registry.terraform.io/providers/integrations/github/latest/docs/data-sources/organization) (data source)
+- [github_repository.this](https://registry.terraform.io/providers/integrations/github/latest/docs/data-sources/repository) (data source)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
@@ -125,6 +128,35 @@ Type: `string`
 ## Optional Inputs
 
 The following input variables are optional (have default values):
+
+### <a name="input_actions_oidc_subject_claims"></a> [actions\_oidc\_subject\_claims](#input\_actions\_oidc\_subject\_claims)
+
+Description: Customize the OIDC subject claim template for GitHub Actions in this repository.  
+Set to null (the default) to not manage this resource.
+`use_default` - Whether to use the default template provided by GitHub.
+`include_claim_keys` - List of claim keys to include in the subject claim (e.g. repository\_owner\_id, repository\_id, environment).
+
+Type:
+
+```hcl
+object({
+    use_default        = bool
+    include_claim_keys = list(string)
+  })
+```
+
+Default:
+
+```json
+{
+  "include_claim_keys": [
+    "repository_owner_id",
+    "repository_id",
+    "environment"
+  ],
+  "use_default": false
+}
+```
 
 ### <a name="input_archive_on_destroy"></a> [archive\_on\_destroy](#input\_archive\_on\_destroy)
 
@@ -272,6 +304,14 @@ Default: `"private"`
 ## Outputs
 
 The following outputs are exported:
+
+### <a name="output_actions_oidc_subject_claim_values"></a> [actions\_oidc\_subject\_claim\_values](#output\_actions\_oidc\_subject\_claim\_values)
+
+Description: Map of configured OIDC subject claim keys to their actual resolved values (map(string)). Only claims resolvable at plan/apply time are included; runtime-only keys (e.g. environment, actor, ref) are omitted.
+
+### <a name="output_actions_oidc_subject_claims"></a> [actions\_oidc\_subject\_claims](#output\_actions\_oidc\_subject\_claims)
+
+Description: The OIDC subject claim customization template for GitHub Actions (null when not managed).
 
 ### <a name="output_default_branch"></a> [default\_branch](#output\_default\_branch)
 
