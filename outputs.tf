@@ -37,3 +37,8 @@ output "actions_oidc_subject_claims" {
   description = "The OIDC subject claim customization template for GitHub Actions (null when not managed)."
   value       = var.actions_oidc_subject_claims != null ? github_actions_repository_oidc_subject_claim_customization_template.this[0] : null
 }
+
+output "actions_oidc_subject_claim_values" {
+  description = "Map of configured OIDC subject claim keys to their actual resolved values (map(string)). Only claims resolvable at plan/apply time are included; runtime-only keys (e.g. environment, actor, ref) are omitted."
+  value       = local.oidc_subject_claim_values
+}

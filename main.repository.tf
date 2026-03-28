@@ -57,6 +57,18 @@ resource "github_branch" "target" {
 # OIDC subject claim customization
 # -----------------------------------------------------------------------------
 
+data "github_repository" "this" {
+  count = !var.create_repository && var.actions_oidc_subject_claims != null ? 1 : 0
+
+  name = var.name
+}
+
+data "github_organization" "this" {
+  count = var.actions_oidc_subject_claims != null ? 1 : 0
+
+  name = var.create_repository ? split("/", github_repository.this[0].full_name)[0] : split("/", data.github_repository.this[0].full_name)[0]
+}
+
 resource "github_actions_repository_oidc_subject_claim_customization_template" "this" {
   count = var.actions_oidc_subject_claims != null ? 1 : 0
 
