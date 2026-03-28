@@ -1,11 +1,19 @@
 output "environment" {
   description = "The environment resource."
-  value       = github_repository_environment.this
+  value = {
+    id          = github_repository_environment.this.id
+    environment = github_repository_environment.this.environment
+  }
 }
 
 output "variables" {
-  description = "Map of environment variable names to their resources."
-  value       = github_actions_environment_variable.this
+  description = "Map of environment variable names to their values."
+  value = {
+    for k, v in github_actions_environment_variable.this : k => {
+      name  = v.variable_name
+      value = v.value
+    }
+  }
 }
 
 output "secrets" {
@@ -13,15 +21,19 @@ output "secrets" {
   value = {
     for k, v in github_actions_environment_secret.this : k => {
       secret_name = v.secret_name
-      created_at  = v.created_at
-      updated_at  = v.updated_at
     }
   }
 }
 
 output "deployment_policies" {
-  description = "Map of deployment policy keys to their resources."
-  value       = github_repository_environment_deployment_policy.this
+  description = "Map of deployment policy keys to their patterns."
+  value = {
+    for k, v in github_repository_environment_deployment_policy.this : k => {
+      id             = v.id
+      branch_pattern = v.branch_pattern
+      tag_pattern    = v.tag_pattern
+    }
+  }
 }
 
 output "identity" {
