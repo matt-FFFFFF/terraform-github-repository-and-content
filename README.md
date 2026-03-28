@@ -8,7 +8,7 @@ Terraform module that creates a GitHub repository and commits file content to it
 
 - **Optional repo creation** -- set `create_repository = false` to manage files in an existing repository.
 - **Content as `map(string)`** -- pass `files = { "path/in/repo" = "content" }`. Works with inline strings, `file()`, `templatefile()`, or any expression that produces a string.
-- **Directory tree from disk** -- combine `fileset()` and `file()` to push an entire local directory into the repo (see example below).
+- **Directory tree from disk** -- set `files_dir = "${path.module}/content"` to push an entire local directory into the repo recursively.
 - **Branch targeting** -- files land on the default branch unless you set `branch`, in which case the branch is created automatically.
 - **Configurable default branch** -- set `default_branch` to any name (defaults to `main`).
 - **Template repos** -- bootstrap from an existing GitHub template repository.
@@ -24,12 +24,8 @@ module "repo" {
   name        = "my-app"
   description = "Application managed by Terraform"
 
-  # fileset() walks content/ and returns relative paths.
-  # file() reads each one. The result is a flat map(string).
-  files = {
-    for path in fileset("${path.module}/content", "**") :
-    path => file("${path.module}/content/${path}")
-  }
+  # All files under content/ are read recursively and committed to the repo.
+  files_dir = "${path.module}/content"
 }
 ```
 
@@ -110,9 +106,12 @@ The following resources are used by this module:
 - [github_branch.target](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/branch) (resource)
 - [github_branch_default.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/branch_default) (resource)
 - [github_repository.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository) (resource)
+- [github_repository_collaborator.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_collaborator) (resource)
 - [github_repository_file.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_file) (resource)
+- [github_team_repository.this](https://registry.terraform.io/providers/integrations/github/latest/docs/resources/team_repository) (resource)
 - [github_organization.this](https://registry.terraform.io/providers/integrations/github/latest/docs/data-sources/organization) (data source)
 - [github_repository.this](https://registry.terraform.io/providers/integrations/github/latest/docs/data-sources/repository) (data source)
+- [github_user.this](https://registry.terraform.io/providers/integrations/github/latest/docs/data-sources/user) (data source)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
@@ -182,6 +181,25 @@ Type: `string`
 
 Default: `null`
 
+### <a name="input_collaborators"></a> [collaborators](#input\_collaborators)
+
+Description: Map of collaborators to add to the repository.  
+The map key is an arbitrary identifier to avoid known-after-apply issues.
+`username`   - The GitHub username of the collaborator.
+`permission` - The permission to grant. Built-in levels are: pull, triage, push, maintain, admin.  
+               Custom organization repository role names are also supported. Defaults to push.
+
+Type:
+
+```hcl
+map(object({
+    username   = string
+    permission = optional(string, "push")
+  }))
+```
+
+Default: `{}`
+
 ### <a name="input_commit_author"></a> [commit\_author](#input\_commit\_author)
 
 Description: The commit author name for file commits.
@@ -232,11 +250,22 @@ Default: `null`
 
 ### <a name="input_files"></a> [files](#input\_files)
 
-Description: Map of file paths to file content to commit to the repository. The map key is the file path within the repo.
+Description: Map of file paths to file content to commit to the repository. The map key is the file path  
+within the repo. Mutually exclusive with files\_dir.
 
 Type: `map(string)`
 
 Default: `{}`
+
+### <a name="input_files_dir"></a> [files\_dir](#input\_files\_dir)
+
+Description: Path to a local directory whose contents will be committed to the repository. All files are  
+read recursively. Mutually exclusive with files. Callers should use an absolute path,  
+e.g. "${path.module}/content".
+
+Type: `string`
+
+Default: `null`
 
 ### <a name="input_gitignore_template"></a> [gitignore\_template](#input\_gitignore\_template)
 
@@ -278,6 +307,35 @@ Type: `string`
 
 Default: `null`
 
+### <a name="input_owner_is_organization"></a> [owner\_is\_organization](#input\_owner\_is\_organization)
+
+Description: Whether the repository owner is a GitHub organization (true) or a personal user account (false).  
+This controls whether the module uses github\_organization or github\_user data source to resolve  
+OIDC claim values.
+
+Type: `bool`
+
+Default: `true`
+
+### <a name="input_teams"></a> [teams](#input\_teams)
+
+Description: Map of teams to grant access to the repository.  
+The map key is an arbitrary identifier to avoid known-after-apply issues.
+`team_id`    - The ID or slug of the team.
+`permission` - The permission to grant. Must be one of: pull, triage, push, maintain, admin,  
+               or the name of an existing custom repository role within the organisation. Defaults to push.
+
+Type:
+
+```hcl
+map(object({
+    team_id    = string
+    permission = optional(string, "push")
+  }))
+```
+
+Default: `{}`
+
 ### <a name="input_template"></a> [template](#input\_template)
 
 Description: Template repository to use when creating the repo. Object with owner and repository keys.
@@ -309,9 +367,9 @@ The following outputs are exported:
 
 Description: Map of configured OIDC subject claim keys to their actual resolved values (map(string)). Only claims resolvable at plan/apply time are included; runtime-only keys (e.g. environment, actor, ref) are omitted.
 
-### <a name="output_actions_oidc_subject_claims"></a> [actions\_oidc\_subject\_claims](#output\_actions\_oidc\_subject\_claims)
+### <a name="output_collaborators"></a> [collaborators](#output\_collaborators)
 
-Description: The OIDC subject claim customization template for GitHub Actions (null when not managed).
+Description: Map of collaborators added to the repository, keyed by the same keys as the collaborators variable.
 
 ### <a name="output_default_branch"></a> [default\_branch](#output\_default\_branch)
 
@@ -341,25 +399,13 @@ Description: The full repository resource (null when create\_repository is false
 
 Description: SSH clone URL of the repository.
 
+### <a name="output_teams"></a> [teams](#output\_teams)
+
+Description: Map of teams granted access to the repository, keyed by the same keys as the teams variable.
+
 ## Modules
 
 No modules.
 
-## Examples
-
-The [examples/complete](examples/complete) directory contains full working configurations covering:
-
-| Example | Description |
-|---------|-------------|
-| Directory tree | Load a local directory into a repo using `fileset()` + `file()` |
-| Inline content | Pass file content as literal strings or heredocs |
-| Feature branch | Commit files to a non-default branch |
-| Existing repo | Manage content without creating the repository |
-| Template repo | Bootstrap from a GitHub template repository |
-
-## Notes
-
-- The GitHub provider must be configured with a token that has `repo` scope (or fine-grained equivalent). Set the `GITHUB_TOKEN` environment variable or configure the provider block directly.
-- Each file managed by this module results in a separate commit via the GitHub API. This is a limitation of the `github_repository_file` resource.
-- When `create_repository = false`, the repository must already exist and the default branch must be initialized.
+Copyright (c) matt-FFFFFF
 <!-- END_TF_DOCS -->

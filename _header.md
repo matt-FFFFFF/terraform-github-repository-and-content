@@ -6,7 +6,7 @@ Terraform module that creates a GitHub repository and commits file content to it
 
 - **Optional repo creation** -- set `create_repository = false` to manage files in an existing repository.
 - **Content as `map(string)`** -- pass `files = { "path/in/repo" = "content" }`. Works with inline strings, `file()`, `templatefile()`, or any expression that produces a string.
-- **Directory tree from disk** -- combine `fileset()` and `file()` to push an entire local directory into the repo (see example below).
+- **Directory tree from disk** -- set `files_dir = "${path.module}/content"` to push an entire local directory into the repo recursively.
 - **Branch targeting** -- files land on the default branch unless you set `branch`, in which case the branch is created automatically.
 - **Configurable default branch** -- set `default_branch` to any name (defaults to `main`).
 - **Template repos** -- bootstrap from an existing GitHub template repository.
@@ -22,12 +22,8 @@ module "repo" {
   name        = "my-app"
   description = "Application managed by Terraform"
 
-  # fileset() walks content/ and returns relative paths.
-  # file() reads each one. The result is a flat map(string).
-  files = {
-    for path in fileset("${path.module}/content", "**") :
-    path => file("${path.module}/content/${path}")
-  }
+  # All files under content/ are read recursively and committed to the repo.
+  files_dir = "${path.module}/content"
 }
 ```
 

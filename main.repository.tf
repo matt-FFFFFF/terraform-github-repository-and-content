@@ -86,7 +86,7 @@ resource "github_actions_repository_oidc_subject_claim_customization_template" "
 # -----------------------------------------------------------------------------
 
 resource "github_repository_file" "this" {
-  for_each = var.files
+  for_each = local.files
 
   repository          = local.repository
   branch              = local.target_branch

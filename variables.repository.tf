@@ -1,24 +1,32 @@
 variable "create_repository" {
-  description = "Whether to create the GitHub repository. Set to false to manage content in an existing repo."
+  description = <<-DESCRIPTION
+    Whether to create the GitHub repository. Set to false to manage content in an existing repo.
+  DESCRIPTION
   type        = bool
   default     = true
   nullable    = false
 }
 
 variable "name" {
-  description = "The name of the repository."
+  description = <<-DESCRIPTION
+    The name of the repository.
+  DESCRIPTION
   type        = string
   nullable    = false
 }
 
 variable "description" {
-  description = "A description of the repository."
+  description = <<-DESCRIPTION
+    A description of the repository.
+  DESCRIPTION
   type        = string
   default     = null
 }
 
 variable "visibility" {
-  description = "Repository visibility: public, private, or internal."
+  description = <<-DESCRIPTION
+    Repository visibility: public, private, or internal.
+  DESCRIPTION
   type        = string
   default     = "private"
 
@@ -29,14 +37,18 @@ variable "visibility" {
 }
 
 variable "default_branch" {
-  description = "The name of the default branch."
+  description = <<-DESCRIPTION
+    The name of the default branch.
+  DESCRIPTION
   type        = string
   default     = "main"
   nullable    = false
 }
 
 variable "template" {
-  description = "Template repository to use when creating the repo. Object with owner and repository keys."
+  description = <<-DESCRIPTION
+    Template repository to use when creating the repo. Object with owner and repository keys.
+  DESCRIPTION
   type = object({
     owner      = string
     repository = string
@@ -45,84 +57,128 @@ variable "template" {
 }
 
 variable "files" {
-  description = "Map of file paths to file content to commit to the repository. The map key is the file path within the repo."
+  description = <<-DESCRIPTION
+    Map of file paths to file content to commit to the repository. The map key is the file path
+    within the repo. Mutually exclusive with files_dir.
+  DESCRIPTION
   type        = map(string)
   default     = {}
   nullable    = false
 }
 
+variable "files_dir" {
+  description = <<-DESCRIPTION
+    Path to a local directory whose contents will be committed to the repository. All files are
+    read recursively. Mutually exclusive with files. Callers should use an absolute path,
+    e.g. "$${path.module}/content".
+  DESCRIPTION
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.files_dir == null || length(var.files) == 0
+    error_message = "Cannot set both files and files_dir. Use one or the other."
+  }
+}
+
 variable "branch" {
-  description = "Branch to commit files to. Defaults to the default branch."
+  description = <<-DESCRIPTION
+    Branch to commit files to. Defaults to the default branch.
+  DESCRIPTION
   type        = string
   default     = null
 }
 
 variable "commit_author" {
-  description = "The commit author name for file commits."
+  description = <<-DESCRIPTION
+    The commit author name for file commits.
+  DESCRIPTION
   type        = string
   default     = "Terraform"
 }
 
 variable "commit_email" {
-  description = "The commit author email for file commits."
+  description = <<-DESCRIPTION
+    The commit author email for file commits.
+  DESCRIPTION
   type        = string
   default     = "terraform@localhost"
 }
 
 variable "commit_message_prefix" {
-  description = "Prefix for auto-generated commit messages."
+  description = <<-DESCRIPTION
+    Prefix for auto-generated commit messages.
+  DESCRIPTION
   type        = string
   default     = "terraform: "
 }
 
 variable "auto_init" {
-  description = "Whether to produce an initial commit with an empty README in the repository."
+  description = <<-DESCRIPTION
+    Whether to produce an initial commit with an empty README in the repository.
+  DESCRIPTION
   type        = bool
   default     = true
   nullable    = false
 }
 
 variable "gitignore_template" {
-  description = "Gitignore template to use when creating the repository (e.g. Terraform, Python, Go)."
+  description = <<-DESCRIPTION
+    Gitignore template to use when creating the repository (e.g. Terraform, Python, Go).
+  DESCRIPTION
   type        = string
   default     = null
 }
 
 variable "license_template" {
-  description = "License template to use when creating the repository (e.g. mit, apache-2.0)."
+  description = <<-DESCRIPTION
+    License template to use when creating the repository (e.g. mit, apache-2.0).
+  DESCRIPTION
   type        = string
   default     = null
 }
 
 variable "archive_on_destroy" {
-  description = "Archive the repository instead of deleting on destroy."
+  description = <<-DESCRIPTION
+    Archive the repository instead of deleting on destroy.
+  DESCRIPTION
   type        = bool
   default     = true
 }
 
 variable "has_issues" {
-  description = "Enable GitHub Issues on the repository."
+  description = <<-DESCRIPTION
+    Enable GitHub Issues on the repository.
+  DESCRIPTION
   type        = bool
   default     = true
   nullable    = false
 }
 
 variable "has_projects" {
-  description = "Enable GitHub Projects on the repository."
+  description = <<-DESCRIPTION
+    Enable GitHub Projects on the repository.
+  DESCRIPTION
   type        = bool
   default     = false
   nullable    = false
 }
 
 variable "has_wiki" {
-  description = "Enable the wiki on the repository."
+  description = <<-DESCRIPTION
+    Enable the wiki on the repository.
+  DESCRIPTION
   type        = bool
   default     = false
   nullable    = false
 }
 
 variable "owner_is_organization" {
-  description = "Whether the repository owner is a GitHub organization (true) or a personal user account (false). This controls whether the module uses github_organization or github_user data source to resolve OIDC claim values."
+  description = <<-DESCRIPTION
+    Whether the repository owner is a GitHub organization (true) or a personal user account (false).
+    This controls whether the module uses github_organization or github_user data source to resolve
+    OIDC claim values.
+  DESCRIPTION
   type        = bool
   default     = true
   nullable    = false
