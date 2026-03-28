@@ -54,6 +54,20 @@ resource "github_branch" "target" {
 }
 
 # -----------------------------------------------------------------------------
+# OIDC subject claim customization
+# -----------------------------------------------------------------------------
+
+resource "github_actions_repository_oidc_subject_claim_customization_template" "this" {
+  count = var.actions_oidc_subject_claims != null ? 1 : 0
+
+  repository         = local.repository
+  use_default        = var.actions_oidc_subject_claims.use_default
+  include_claim_keys = var.actions_oidc_subject_claims.include_claim_keys
+
+  depends_on = [github_repository.this]
+}
+
+# -----------------------------------------------------------------------------
 # File content
 # -----------------------------------------------------------------------------
 

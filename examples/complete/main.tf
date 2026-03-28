@@ -111,3 +111,19 @@ module "repo_from_template" {
     EOT
   }
 }
+
+# -----------------------------------------------------------------------------
+# Example 6 – Customize OIDC subject claims for GitHub Actions
+# -----------------------------------------------------------------------------
+
+module "repo_with_oidc_claims" {
+  source = "../../"
+
+  name        = "my-oidc-repo"
+  description = "Repository with custom OIDC subject claims"
+
+  actions_oidc_subject_claims = {
+    use_default        = false
+    include_claim_keys = ["repository_owner_id", "repository_id", "environment"]
+  }
+}

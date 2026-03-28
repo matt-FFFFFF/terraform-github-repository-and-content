@@ -32,3 +32,8 @@ output "files" {
   description = "Map of managed file paths to their commit SHAs."
   value       = { for k, v in github_repository_file.this : k => v.commit_sha }
 }
+
+output "actions_oidc_subject_claims" {
+  description = "The OIDC subject claim customization template for GitHub Actions (null when not managed)."
+  value       = var.actions_oidc_subject_claims != null ? github_actions_repository_oidc_subject_claim_customization_template.this[0] : null
+}

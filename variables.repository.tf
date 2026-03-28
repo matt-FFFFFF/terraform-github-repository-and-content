@@ -120,3 +120,24 @@ variable "has_wiki" {
   default     = false
   nullable    = false
 }
+
+variable "actions_oidc_subject_claims" {
+  description = <<-DESCRIPTION
+    Customize the OIDC subject claim template for GitHub Actions in this repository.
+    Set to null (the default) to not manage this resource.
+    `use_default` - Whether to use the default template provided by GitHub.
+    `include_claim_keys` - List of claim keys to include in the subject claim (e.g. repository_owner_id, repository_id, environment).
+  DESCRIPTION
+  type = object({
+    use_default        = bool
+    include_claim_keys = list(string)
+  })
+  default = {
+    use_default = false
+    include_claim_keys = [
+      "repository_owner_id",
+      "repository_id",
+      "environment"
+    ]
+  }
+}
