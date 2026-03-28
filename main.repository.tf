@@ -49,8 +49,6 @@ resource "github_branch" "target" {
   repository    = local.repository
   branch        = var.branch
   source_branch = var.default_branch
-
-  depends_on = [github_repository.this]
 }
 
 # -----------------------------------------------------------------------------
@@ -81,8 +79,6 @@ resource "github_actions_repository_oidc_subject_claim_customization_template" "
   repository         = local.repository
   use_default        = var.actions_oidc_subject_claims.use_default
   include_claim_keys = var.actions_oidc_subject_claims.include_claim_keys
-
-  depends_on = [github_repository.this]
 }
 
 # -----------------------------------------------------------------------------
@@ -101,10 +97,4 @@ resource "github_repository_file" "this" {
   commit_message = "${var.commit_message_prefix}update ${each.key}"
   commit_author  = var.commit_author
   commit_email   = var.commit_email
-
-  depends_on = [
-    github_repository.this,
-    github_branch_default.this,
-    github_branch.target,
-  ]
 }

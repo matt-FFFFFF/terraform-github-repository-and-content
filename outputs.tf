@@ -37,3 +37,24 @@ output "actions_oidc_subject_claim_values" {
   description = "Map of configured OIDC subject claim keys to their actual resolved values (map(string)). Only claims resolvable at plan/apply time are included; runtime-only keys (e.g. environment, actor, ref) are omitted."
   value       = local.oidc_subject_claim_values
 }
+
+output "collaborators" {
+  description = "Map of collaborators added to the repository, keyed by the same keys as the collaborators variable."
+  value = {
+    for k, v in github_repository_collaborator.this : k => {
+      username      = v.username
+      permission    = v.permission
+      invitation_id = v.invitation_id
+    }
+  }
+}
+
+output "teams" {
+  description = "Map of teams granted access to the repository, keyed by the same keys as the teams variable."
+  value = {
+    for k, v in github_team_repository.this : k => {
+      team_id    = v.team_id
+      permission = v.permission
+    }
+  }
+}

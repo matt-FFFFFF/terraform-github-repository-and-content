@@ -50,5 +50,6 @@ avm.tflint_module.merged.hcl
 
 *.tfrc
 examples/*/policy
+!examples/*/terraform.tfvars
 *.mptfbackup
 .avm

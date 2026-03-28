@@ -32,20 +32,53 @@ variable "archive_on_destroy" {
 resource "random_pet" "this" {}
 
 # -----------------------------------------------------------------------------
-# Customize OIDC subject claims for GitHub Actions
+# Teams - create teams to grant access to the repository
+# -----------------------------------------------------------------------------
+
+resource "github_team" "developers" {
+  name        = "developers-${random_pet.this.id}"
+  description = "Development team"
+  privacy     = "closed"
+}
+
+resource "github_team" "platform" {
+  name        = "platform-${random_pet.this.id}"
+  description = "Platform team"
+  privacy     = "closed"
+}
+
+# -----------------------------------------------------------------------------
+# New repo with team permissions
 # -----------------------------------------------------------------------------
 
 module "repo" {
   source = "../../"
 
   name                  = random_pet.this.id
-  description           = "Repository with custom OIDC subject claims"
+  description           = "Repo with managed permissions"
   archive_on_destroy    = var.archive_on_destroy
   owner_is_organization = var.owner_is_organization
 
-  actions_oidc_subject_claims = {
-    use_default        = false
-    include_claim_keys = ["repository_owner_id", "repository_id", "environment"]
+  # collaborators = {
+  #   alice = {
+  #     username   = "alice"
+  #     permission = "push"
+  #   }
+  #   bob = {
+  #     username   = "bob"
+  #     permission = "admin"
+  #   }
+  # }
+
+  teams = {
+    developers = {
+      team_id    = github_team.developers.slug
+      permission = "push"
+    }
+    platform = {
+      team_id    = github_team.platform.slug
+      permission = "maintain"
+    }
   }
 }
 
@@ -57,10 +90,6 @@ output "html_url" {
   value = module.repo.html_url
 }
 
-output "default_branch" {
-  value = module.repo.default_branch
-}
-
-output "actions_oidc_subject_claim_values" {
-  value = module.repo.actions_oidc_subject_claim_values
+output "teams" {
+  value = module.repo.teams
 }
