@@ -58,8 +58,10 @@ DESCRIPTION
 
 variable "files" {
   description = <<DESCRIPTION
-Map of file paths to file content to commit to the repository. The map key is the file path
-within the repo. Mutually exclusive with files_dir.
+Map of file paths to file content to commit to the repository.
+The map key is the file path within the repo.
+
+Mutually exclusive with `files_dir`.
 DESCRIPTION
   type        = map(string)
   default     = {}
@@ -68,9 +70,11 @@ DESCRIPTION
 
 variable "files_dir" {
   description = <<DESCRIPTION
-Path to a local directory whose contents will be committed to the repository. All files are
-read recursively. Mutually exclusive with files. Callers should use an absolute path,
-e.g. "$${path.module}/content".
+Path to a local directory whose contents will be committed to the repository.
+All files are read recursively. Callers should use an absolute path,
+e.g. `$${path.module}/content`.
+
+Mutually exclusive with `files`.
 DESCRIPTION
   type        = string
   default     = null
@@ -175,9 +179,10 @@ DESCRIPTION
 
 variable "owner_is_organization" {
   description = <<DESCRIPTION
-Whether the repository owner is a GitHub organization (true) or a personal user account (false).
-This controls whether the module uses github_organization or github_user data source to resolve
-OIDC claim values.
+Whether the repository owner is a GitHub organization (`true`) or a personal user account (`false`).
+
+This controls whether the module uses `github_organization` or `github_user` data source
+to resolve OIDC claim values.
 DESCRIPTION
   type        = bool
   default     = true
@@ -187,9 +192,11 @@ DESCRIPTION
 variable "actions_oidc_subject_claims" {
   description = <<DESCRIPTION
 Customize the OIDC subject claim template for GitHub Actions in this repository.
-Set to null (the default) to not manage this resource.
-`use_default` - Whether to use the default template provided by GitHub.
-`include_claim_keys` - List of claim keys to include in the subject claim (e.g. repository_owner_id, repository_id, environment).
+Set to `null` to not manage this resource.
+
+- `use_default` - Whether to use the default template provided by GitHub.
+- `include_claim_keys` - List of claim keys to include in the subject claim
+  (e.g. `repository_owner_id`, `repository_id`, `environment`).
 DESCRIPTION
   type = object({
     use_default        = bool
@@ -208,12 +215,12 @@ DESCRIPTION
 variable "actions_oidc_subject_claim_values" {
   description = <<DESCRIPTION
 Additional OIDC subject claim key/value pairs for keys that cannot be resolved
-by the module at plan time (e.g. job_workflow_ref). These are merged with the
-module-resolved values and used when constructing federated identity credential
-subjects.
-Keys that the module resolves automatically (repository, repository_id,
-repository_owner, repository_owner_id, repository_visibility, environment)
-cannot be overridden.
+by the module at plan time (e.g. `job_workflow_ref`). These are merged with the
+module-resolved values and used when constructing federated identity credential subjects.
+
+The following keys are resolved automatically and cannot be overridden:
+`repository`, `repository_id`, `repository_owner`, `repository_owner_id`,
+`repository_visibility`, `environment`.
 DESCRIPTION
   type        = map(string)
   default     = {}

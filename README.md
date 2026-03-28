@@ -131,12 +131,12 @@ The following input variables are optional (have default values):
 ### <a name="input_actions_oidc_subject_claim_values"></a> [actions\_oidc\_subject\_claim\_values](#input\_actions\_oidc\_subject\_claim\_values)
 
 Description: Additional OIDC subject claim key/value pairs for keys that cannot be resolved  
-by the module at plan time (e.g. job\_workflow\_ref). These are merged with the  
-module-resolved values and used when constructing federated identity credential  
-subjects.  
-Keys that the module resolves automatically (repository, repository\_id,  
-repository\_owner, repository\_owner\_id, repository\_visibility, environment)  
-cannot be overridden.
+by the module at plan time (e.g. `job_workflow_ref`). These are merged with the  
+module-resolved values and used when constructing federated identity credential subjects.
+
+The following keys are resolved automatically and cannot be overridden:
+`repository`, `repository_id`, `repository_owner`, `repository_owner_id`,
+`repository_visibility`, `environment`.
 
 Type: `map(string)`
 
@@ -145,9 +145,11 @@ Default: `{}`
 ### <a name="input_actions_oidc_subject_claims"></a> [actions\_oidc\_subject\_claims](#input\_actions\_oidc\_subject\_claims)
 
 Description: Customize the OIDC subject claim template for GitHub Actions in this repository.  
-Set to null (the default) to not manage this resource.
-`use_default` - Whether to use the default template provided by GitHub.
-`include_claim_keys` - List of claim keys to include in the subject claim (e.g. repository\_owner\_id, repository\_id, environment).
+Set to `null` to not manage this resource.
+
+- `use_default` - Whether to use the default template provided by GitHub.
+- `include_claim_keys` - List of claim keys to include in the subject claim
+  (e.g. `repository_owner_id`, `repository_id`, `environment`).
 
 Type:
 
@@ -199,9 +201,11 @@ Default: `null`
 
 Description: Map of collaborators to add to the repository.  
 The map key is an arbitrary identifier to avoid known-after-apply issues.
-`username`   - The GitHub username of the collaborator.
-`permission` - The permission to grant. Built-in levels are: pull, triage, push, maintain, admin.  
-               Custom organization repository role names are also supported. Defaults to push.
+
+- `username` - The GitHub username of the collaborator.
+- `permission` - The permission to grant. Built-in levels are: `pull`, `triage`, `push`,
+  `maintain`, `admin`. Custom organization repository role names are also supported.  
+  Defaults to `push`.
 
 Type:
 
@@ -266,36 +270,37 @@ Default: `null`
 
 Description: Map of environments to create for the repository.  
 The map key is an arbitrary identifier to avoid known-after-apply issues.
-`environment`         - The name of the environment.
-`wait_timer`          - Amount of time in minutes to delay a job after the job is initially triggered.
-`can_admins_bypass`   - Whether repository admins can bypass the environment protections. Defaults to true.
-`prevent_self_review` - Whether users are prevented from approving workflows they triggered. Defaults to false.
-`reviewers`           - Reviewers who may approve deployments:
-  `teams` - Up to 6 team IDs.
-  `users` - Up to 6 user IDs.
-`variables`           - Map of environment variables (arbitrary key):
-  `name`  - The variable name.
-  `value` - The variable value.
-`secrets`             - Map of environment secrets (arbitrary key). Values are NOT managed by Terraform:
-  `name` - The secret name.
-`deployment_policy`   - Deployment branch policy:
-  `protected_branches`     - Whether only protected branches can deploy.
-  `custom_branch_policies` - Whether only matching branch/tag patterns can deploy.
-`branch_policies`     - Branch name patterns for custom deployment policies.
-`tag_policies`        - Tag name patterns for custom deployment policies.
-`identity`            - Optional Azure identity configuration. When set, creates a user-assigned  
-                        managed identity and federated identity credential for the environment:
-  `name`      - Name of the user-assigned managed identity.
-  `parent_id` - Azure resource group resource ID where the identity will be created.
-  `location`  - Azure region for the identity.
-  `subject`   - Optional override for the federated identity credential subject claim.  
-                When not set, the subject is auto-constructed from the OIDC claim configuration.
-  `audiences` - Optional list of audiences for the federated credential. Defaults to ["api://AzureADTokenExchange"].
-`identity_role_assignments`  - Optional map of Azure role assignments for the environment's managed identity:
-  `role_definition_id` - The full resource ID of the role definition (e.g. /subscriptions/.../providers/Microsoft.Authorization/roleDefinitions/...).
-  `scope`              - The scope at which the role assignment applies (e.g. a resource group or subscription ID).
-  `condition`          - Optional condition for the role assignment.
-  `condition_version`  - Optional version of the condition syntax (e.g. "2.0").
+
+- `environment` - The name of the environment.
+- `wait_timer` - Amount of time in minutes to delay a job after the job is initially triggered.
+- `can_admins_bypass` - Whether repository admins can bypass the environment protections. Defaults to `true`.
+- `prevent_self_review` - Whether users are prevented from approving workflows they triggered. Defaults to `false`.
+- `reviewers` - Reviewers who may approve deployments:
+  - `teams` - Up to 6 team IDs.
+  - `users` - Up to 6 user IDs.
+- `variables` - Map of environment variables (arbitrary key):
+  - `name` - The variable name.
+  - `value` - The variable value.
+- `secrets` - Map of environment secrets (arbitrary key). Values are NOT managed by Terraform:
+  - `name` - The secret name.
+- `deployment_policy` - Deployment branch policy:
+  - `protected_branches` - Whether only protected branches can deploy.
+  - `custom_branch_policies` - Whether only matching branch/tag patterns can deploy.
+- `branch_policies` - Branch name patterns for custom deployment policies.
+- `tag_policies` - Tag name patterns for custom deployment policies.
+- `identity` - Optional Azure identity configuration. When set, creates a user-assigned  
+  managed identity and federated identity credential for the environment:
+  - `name` - Name of the user-assigned managed identity.
+  - `parent_id` - Azure resource group resource ID where the identity will be created.
+  - `location` - Azure region for the identity.
+  - `subject` - Optional override for the federated identity credential subject claim.  
+    When not set, the subject is auto-constructed from the OIDC claim configuration.
+  - `audiences` - Optional list of audiences for the federated credential. Defaults to `["api://AzureADTokenExchange"]`.
+- `identity_role_assignments` - Optional map of Azure role assignments for the environment's managed identity:
+  - `role_definition_id` - The full resource ID of the role definition.
+  - `scope` - The scope at which the role assignment applies.
+  - `condition` - Optional condition for the role assignment.
+  - `condition_version` - Optional version of the condition syntax (e.g. `"2.0"`).
 
 Type:
 
@@ -342,8 +347,10 @@ Default: `{}`
 
 ### <a name="input_files"></a> [files](#input\_files)
 
-Description: Map of file paths to file content to commit to the repository. The map key is the file path  
-within the repo. Mutually exclusive with files\_dir.
+Description: Map of file paths to file content to commit to the repository.  
+The map key is the file path within the repo.
+
+Mutually exclusive with `files_dir`.
 
 Type: `map(string)`
 
@@ -351,9 +358,11 @@ Default: `{}`
 
 ### <a name="input_files_dir"></a> [files\_dir](#input\_files\_dir)
 
-Description: Path to a local directory whose contents will be committed to the repository. All files are  
-read recursively. Mutually exclusive with files. Callers should use an absolute path,  
-e.g. "${path.module}/content".
+Description: Path to a local directory whose contents will be committed to the repository.  
+All files are read recursively. Callers should use an absolute path,  
+e.g. `${path.module}/content`.
+
+Mutually exclusive with `files`.
 
 Type: `string`
 
@@ -401,9 +410,10 @@ Default: `null`
 
 ### <a name="input_owner_is_organization"></a> [owner\_is\_organization](#input\_owner\_is\_organization)
 
-Description: Whether the repository owner is a GitHub organization (true) or a personal user account (false).  
-This controls whether the module uses github\_organization or github\_user data source to resolve  
-OIDC claim values.
+Description: Whether the repository owner is a GitHub organization (`true`) or a personal user account (`false`).
+
+This controls whether the module uses `github_organization` or `github_user` data source  
+to resolve OIDC claim values.
 
 Type: `bool`
 
@@ -413,9 +423,11 @@ Default: `true`
 
 Description: Map of teams to grant access to the repository.  
 The map key is an arbitrary identifier to avoid known-after-apply issues.
-`team_id`    - The ID or slug of the team.
-`permission` - The permission to grant. Must be one of: pull, triage, push, maintain, admin,  
-               or the name of an existing custom repository role within the organisation. Defaults to push.
+
+- `team_id` - The ID or slug of the team.
+- `permission` - The permission to grant. Must be one of: `pull`, `triage`, `push`,
+  `maintain`, `admin`, or the name of an existing custom repository role within the  
+  organisation. Defaults to `push`.
 
 Type:
 
