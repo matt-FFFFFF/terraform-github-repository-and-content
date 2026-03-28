@@ -36,6 +36,31 @@ mock_provider "github" {
     }
   }
 
+  mock_resource "github_repository_environment" {
+    defaults = {}
+  }
+
+  mock_resource "github_actions_environment_variable" {
+    defaults = {
+      created_at    = "2024-01-01T00:00:00Z"
+      updated_at    = "2024-01-01T00:00:00Z"
+      repository_id = 123456
+    }
+  }
+
+  mock_resource "github_actions_environment_secret" {
+    defaults = {
+      created_at        = "2024-01-01T00:00:00Z"
+      updated_at        = "2024-01-01T00:00:00Z"
+      remote_updated_at = "2024-01-01T00:00:00Z"
+      repository_id     = 123456
+    }
+  }
+
+  mock_resource "github_repository_environment_deployment_policy" {
+    defaults = {}
+  }
+
   mock_data "github_repository" {
     defaults = {
       full_name  = "test-org/test-repo"
@@ -1039,4 +1064,61 @@ run "files_dir_null_with_files_allowed" {
     condition     = github_repository_file.this["README.md"].content == "# Hello"
     error_message = "File content should come from the files map."
   }
+}
+
+# =============================================================================
+# Environments — integration with root module
+# =============================================================================
+
+run "default_no_environments" {
+  command = apply
+
+  variables {
+    name = "test-repo"
+  }
+
+  assert {
+    condition     = length(output.environments) == 0
+    error_message = "No environments should be created when environments variable is empty (default)."
+  }
+}
+
+# =============================================================================
+# Environment validation
+# =============================================================================
+
+run "branch_policies_without_custom_rejected" {
+  command = plan
+
+  variables {
+    name = "test-repo"
+    environments = {
+      bad = {
+        environment     = "bad-env"
+        branch_policies = ["main"]
+      }
+    }
+  }
+
+  expect_failures = [
+    var.environments,
+  ]
+}
+
+run "tag_policies_without_custom_rejected" {
+  command = plan
+
+  variables {
+    name = "test-repo"
+    environments = {
+      bad = {
+        environment  = "bad-env"
+        tag_policies = ["v*"]
+      }
+    }
+  }
+
+  expect_failures = [
+    var.environments,
+  ]
 }
