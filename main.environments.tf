@@ -17,4 +17,17 @@ module "environment" {
   deployment_policy   = each.value.deployment_policy
   branch_policies     = each.value.branch_policies
   tag_policies        = each.value.tag_policies
+
+  # Azure identity
+  identity                    = each.value.identity
+  actions_oidc_subject_claims = var.actions_oidc_subject_claims
+  oidc_subject_claim_values   = local.oidc_subject_claim_values_merged
+  repository_full_name = (
+    local.oidc_repo != null
+    ? local.oidc_repo.full_name
+    : var.name
+  )
+
+  # Azure role assignments
+  role_assignments = each.value.identity_role_assignments
 }

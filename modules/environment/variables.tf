@@ -124,3 +124,91 @@ variable "tag_policies" {
     error_message = "tag_policies requires deployment_policy with custom_branch_policies = true."
   }
 }
+
+# -----------------------------------------------------------------------------
+# Azure identity
+# -----------------------------------------------------------------------------
+
+variable "identity" {
+  description = <<-DESCRIPTION
+    Optional Azure identity configuration for this environment. When set, creates a
+    user-assigned managed identity and a federated identity credential linked to the
+    GitHub Actions OIDC provider.
+    `name`      - Name of the user-assigned managed identity.
+    `parent_id` - Azure resource group resource ID where the identity will be created.
+    `location`  - Azure region for the identity.
+    `subject`   - Optional override for the federated identity credential subject claim.
+                  When not set, the subject is auto-constructed from the OIDC claim configuration.
+    `audiences` - Optional list of audiences for the federated credential.
+                  Defaults to ["api://AzureADTokenExchange"].
+  DESCRIPTION
+  type = object({
+    name      = string
+    parent_id = string
+    location  = string
+    subject   = optional(string)
+    audiences = optional(list(string), ["api://AzureADTokenExchange"])
+  })
+  default = null
+}
+
+variable "actions_oidc_subject_claims" {
+  description = <<-DESCRIPTION
+    The OIDC subject claim configuration from the root module, used to determine
+    how to construct the federated identity credential subject string.
+  DESCRIPTION
+  type = object({
+    use_default        = bool
+    include_claim_keys = list(string)
+  })
+  default = null
+}
+
+variable "oidc_subject_claim_values" {
+  description = <<-DESCRIPTION
+    Map of OIDC subject claim keys to their resolved values, passed from the root
+    module. Includes both module-resolved values (e.g. repository_id) and
+    user-supplied values (e.g. job_workflow_ref).
+  DESCRIPTION
+  type        = map(string)
+  default     = {}
+  nullable    = false
+}
+
+variable "repository_full_name" {
+  description = <<-DESCRIPTION
+    The full name of the repository (owner/name), used to construct the default
+    OIDC subject claim format (repo:owner/name:environment:env-name).
+  DESCRIPTION
+  type        = string
+  default     = ""
+  nullable    = false
+}
+
+# -----------------------------------------------------------------------------
+# Azure role assignments
+# -----------------------------------------------------------------------------
+
+variable "role_assignments" {
+  description = <<-DESCRIPTION
+    Map of Azure role assignments for this environment's managed identity.
+    Requires identity to be configured.
+    `role_definition_id` - The full resource ID of the role definition.
+    `scope`              - The scope at which the role assignment applies.
+    `condition`          - Optional condition for the role assignment.
+    `condition_version`  - Optional version of the condition syntax (e.g. "2.0").
+  DESCRIPTION
+  type = map(object({
+    role_definition_id = string
+    scope              = string
+    condition          = optional(string)
+    condition_version  = optional(string)
+  }))
+  default  = {}
+  nullable = false
+
+  validation {
+    condition     = length(var.role_assignments) == 0 || var.identity != null
+    error_message = "role_assignments requires identity to be configured."
+  }
+}

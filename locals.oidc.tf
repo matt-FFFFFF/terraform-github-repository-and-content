@@ -46,4 +46,12 @@ locals {
     key => local.oidc_resolvable_claim_keys[key]
     if contains(keys(local.oidc_resolvable_claim_keys), key)
   } : {}
+
+  # Merge module-resolved values with user-supplied values for keys that cannot
+  # be resolved at plan time (e.g. job_workflow_ref). Resolved values take
+  # precedence (validation on the variable prevents overlap anyway).
+  oidc_subject_claim_values_merged = merge(
+    var.actions_oidc_subject_claim_values,
+    local.oidc_subject_claim_values,
+  )
 }

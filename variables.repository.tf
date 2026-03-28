@@ -204,3 +204,33 @@ variable "actions_oidc_subject_claims" {
     ]
   }
 }
+
+variable "actions_oidc_subject_claim_values" {
+  description = <<-DESCRIPTION
+    Additional OIDC subject claim key/value pairs for keys that cannot be resolved
+    by the module at plan time (e.g. job_workflow_ref). These are merged with the
+    module-resolved values and used when constructing federated identity credential
+    subjects.
+    Keys that the module resolves automatically (repository, repository_id,
+    repository_owner, repository_owner_id, repository_visibility, environment)
+    cannot be overridden.
+  DESCRIPTION
+  type        = map(string)
+  default     = {}
+  nullable    = false
+
+  validation {
+    condition = alltrue([
+      for key in keys(var.actions_oidc_subject_claim_values) :
+      !contains([
+        "repository",
+        "repository_id",
+        "repository_owner",
+        "repository_owner_id",
+        "repository_visibility",
+        "environment",
+      ], key)
+    ])
+    error_message = "Cannot override module-managed claim keys: repository, repository_id, repository_owner, repository_owner_id, repository_visibility, environment."
+  }
+}

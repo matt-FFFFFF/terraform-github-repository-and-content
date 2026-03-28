@@ -84,6 +84,8 @@ mock_provider "github" {
   }
 }
 
+mock_provider "random" {}
+
 # File-level variables applied to all run blocks unless overridden.
 variables {
   name = "test-repo"
@@ -1120,5 +1122,54 @@ run "tag_policies_without_custom_rejected" {
 
   expect_failures = [
     var.environments,
+  ]
+}
+
+# =============================================================================
+# Validation: cannot override module-managed claim keys
+# =============================================================================
+
+run "override_repository_id_rejected" {
+  command = plan
+
+  variables {
+    name = "test-repo"
+    actions_oidc_subject_claim_values = {
+      repository_id = "override-attempt"
+    }
+  }
+
+  expect_failures = [
+    var.actions_oidc_subject_claim_values,
+  ]
+}
+
+run "override_repository_owner_id_rejected" {
+  command = plan
+
+  variables {
+    name = "test-repo"
+    actions_oidc_subject_claim_values = {
+      repository_owner_id = "override-attempt"
+    }
+  }
+
+  expect_failures = [
+    var.actions_oidc_subject_claim_values,
+  ]
+}
+
+run "override_environment_rejected" {
+  command = plan
+
+  variables {
+    name = "test-repo"
+    actions_oidc_subject_claim_values = {
+      environment = "override-attempt"
+    }
+  }
+
+  expect_failures = [
+    var.actions_oidc_subject_claim_values,
   ]
 }
