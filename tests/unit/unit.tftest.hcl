@@ -61,6 +61,14 @@ mock_provider "github" {
     defaults = {}
   }
 
+  mock_resource "github_repository_ruleset" {
+    defaults = {
+      node_id    = "RSL_abc123"
+      ruleset_id = 12345
+      etag       = "etag-123"
+    }
+  }
+
   mock_data "github_repository" {
     defaults = {
       full_name  = "test-org/test-repo"
@@ -1172,4 +1180,21 @@ run "override_environment_rejected" {
   expect_failures = [
     var.actions_oidc_subject_claim_values,
   ]
+}
+
+# =============================================================================
+# Rulesets — integration with root module
+# =============================================================================
+
+run "default_no_rulesets" {
+  command = apply
+
+  variables {
+    name = "test-repo"
+  }
+
+  assert {
+    condition     = length(output.rulesets) == 0
+    error_message = "No rulesets should be created when rulesets variable is empty (default)."
+  }
 }

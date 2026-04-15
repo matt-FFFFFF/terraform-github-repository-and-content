@@ -63,3 +63,8 @@ output "environments" {
   description = "Map of environment keys to their submodule outputs, keyed by the same keys as the environments variable."
   value       = module.environment
 }
+
+output "rulesets" {
+  description = "Map of ruleset keys to their submodule outputs, keyed by the same keys as the rulesets variable."
+  value       = module.ruleset
+}
